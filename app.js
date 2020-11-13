@@ -1,35 +1,48 @@
-/*
-we use modules to keep pieces of code that are related to one another together
-*/
 
-
-//its a app on its own
-//ultimately its a object
 var budgetController = (function(){
-    var a = 10;
-    var add = function(x){
-        return a+x;
-    }
 
-    return {
-        addPublic: function(y){
-            return add(y);
-        }
-    }
 })();
 
 var UIController = (function(){
-    //all code for ui change goes here
+
+    var DOM = {
+        inputType: '.add__type',
+        inputDescription: '.add__description',
+        inputValue: '.add__value',
+        inputButton: '.add__btn'
+    }
+    
+    return {
+        getInput: function(){
+            return {
+                type: document.querySelector(DOM.inputType).value,
+                description: document.querySelector(DOM.inputDescription).value,
+                value: document.querySelector(DOM.inputValue).value
+            }
+        },
+        getDOMStrings: function(){
+            return DOM;
+        }
+    }
+
+
 })();
 
-
-//helps to connect budget controller and uicontroller
 var controller = (function(budgetCntrl, UICntrl){
-    var z = budgetCntrl.addPublic(100);
-    return {
-        showResult: function(){
-            console.log(z);
-        },
-        name: 'Pankaj'
+
+    var DOM = UICntrl.getDOMStrings();
+    
+    var ctrlAddItem = function(){
+        var input = UICntrl.getInput();
+        console.log(input);
     }
+
+    document.querySelector(DOM.inputButton).addEventListener('click', ctrlAddItem);
+
+    document.addEventListener('keypress', function(event){
+        if(event.key === 'Enter'){
+            ctrlAddItem();
+        }
+    });
+
 })(budgetController, UIController);
