@@ -55,6 +55,17 @@ var budgetController = (function(){
             return newItem;
         },
 
+        deleteItem: function(type, id){
+            var ids, index;
+            ids = data.allItems[type].map(function(current){
+                return current.id;
+            });
+            index = ids.indexOf(id);
+            if(index !== -1){
+                data.allItems[type].splice(index,1);
+            }
+        },
+
         calculateBudget: function(){
             calculateTotal('inc');
             calculateTotal('exp');
@@ -204,10 +215,10 @@ var controller = (function(budgetCntrl, UICntrl){
             //inc-1 or exp-1
             splitID = itemID.split('-'); // ['inc', '1']
             type = splitID[0];
-            ID = splitID[1];
+            ID = parseInt(splitID[1]);
 
             //Delete the item from the data structure
-
+            budgetCntrl.deleteItem(type,ID);
             //Delete the item from the ui
 
             //Update the budget
