@@ -1,0 +1,1 @@
+in js we cannot remove an element but we can only remove a child
