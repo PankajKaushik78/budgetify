@@ -11,7 +11,7 @@ var budgetController = (function(){
 
     Expense.prototype.calcPercentage = function(totalIncome){
         if(totalIncome > 0){
-            this.percentage = (this.value / totalIncome) * 100;
+            this.percentage = Math.round((this.value / totalIncome) * 100);
         }else{
             this.percentage = -1;
         }
@@ -135,6 +135,23 @@ var UIController = (function(){
         container: '.container',
         itemPercentageLabel: '.item__percentage',
     }
+
+    var formatNumber = function(num, type){
+        var number, int, dec;
+
+        num = Math.abs(num);
+        num = num.toFixed(2);
+        number = num.split('.');
+
+        int = number[0];
+        dec = number[1];
+
+        if(int.length > 3){
+            int = int.substr(0,int.length-3) + ',' + int.substr(int.length-3,3);
+        }
+
+        return (type === 'inc' ? '+' : '-') + ' ' + int + '.' + dec;
+    }; 
     
     return {
         getInput: function(){
@@ -150,15 +167,15 @@ var UIController = (function(){
             
             if(type === 'inc'){
                 element = DOM.incomeContainer;
-                html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }else if(type === 'exp'){
                 element = DOM.expenseContainer;
-                html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }
 
             newHtml = html.replace('%id%', obj.id);
             newHtml = newHtml.replace('%description%', obj.description);
-            newHtml = newHtml.replace('%value%',obj.value);
+            newHtml = newHtml.replace('%value%',formatNumber(obj.value, type));
 
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
         },
@@ -181,10 +198,17 @@ var UIController = (function(){
         },
 
         updateUI: function(){
-            var budget = budgetController.getBudget();
-            document.querySelector(DOM.budgetIncome).textContent = budget.totalInc > 0 ? '+' + budget.totalInc : budget.totalInc;
-            document.querySelector(DOM.budgetExpense).textContent = budget.totalExp > 0 ? '-' + budget.totalExp : budget.totalExp;
-            document.querySelector(DOM.budgetValue).textContent = budget.budget;
+            var budget, type;
+
+            budget = budgetController.getBudget();
+            type = '';
+            if(budget.budget !== 0){
+                type = (budget.budget > 0 ? 'inc' : 'exp');
+            }
+
+            document.querySelector(DOM.budgetIncome).textContent = formatNumber(budget.totalInc,'inc');
+            document.querySelector(DOM.budgetExpense).textContent = formatNumber(budget.totalExp, 'exp');
+            document.querySelector(DOM.budgetValue).textContent = formatNumber(budget.budget,type);
             if(budget.percentage > 0)
                 document.querySelector(DOM.totalPercentage).textContent = budget.percentage + '%';
             else 
